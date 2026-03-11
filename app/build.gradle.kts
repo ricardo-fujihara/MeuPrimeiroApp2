@@ -53,6 +53,8 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp.logging)
 
+    implementation(libs.picasso)
+
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
