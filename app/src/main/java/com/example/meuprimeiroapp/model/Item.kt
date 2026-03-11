@@ -29,7 +29,10 @@ data class ItemValue(
     val imageUrl: String,
     val age: Int,
     val location: ItemLocation
-)
+){
+    val fullName: String
+        get() = "$name $surname"
+}
 
 /**
  * Geographic location details.

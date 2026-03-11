@@ -3,7 +3,7 @@ package com.example.meuprimeiroapp.service
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object RetrofirClient {
+object RetrofitClient {
 
     private const val BASE_URL = "http://10.0.2.2:3000/" // Endereço para usado para acessar o localhost no celular
 
@@ -16,7 +16,7 @@ object RetrofirClient {
 
 
     val apiService: ApiService by lazy {
-        RetrofirClient.retrofit.create(ApiService::class.java)
+        RetrofitClient.retrofit.create(ApiService::class.java)
     }
 
 }
