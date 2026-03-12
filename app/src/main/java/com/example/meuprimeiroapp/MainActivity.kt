@@ -1,7 +1,6 @@
 package com.example.meuprimeiroapp
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.meuprimeiroapp.adapter.ItemAdapter
@@ -21,7 +20,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //enableEdgeToEdge() // habilita o modo de aresta - hora e status superior em tela cheia
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupView()
@@ -32,18 +30,14 @@ class MainActivity : AppCompatActivity() {
         fetchItems()
     }
 
-
-
     private fun setupView() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-
+            fetchItems()
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.addCta.setOnClickListener {
 
-
         }
-
     }
     private fun fetchItems() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -57,12 +51,13 @@ class MainActivity : AppCompatActivity() {
 
                     }
                 }
-
             }
-
         }
     }
     private fun handleOnSuccess(items: List<Item>) {
-        binding.recyclerView.adapter = ItemAdapter(items)
+        binding.recyclerView.adapter = ItemAdapter(items) { item ->
+//            val intent = ItemDetailActivity.newIntent(this, item)
+//            startActivity(intent)
+        }
     }
 }

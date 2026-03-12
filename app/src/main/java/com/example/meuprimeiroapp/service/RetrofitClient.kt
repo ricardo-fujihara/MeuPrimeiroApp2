@@ -5,7 +5,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://10.0.2.2:3000/" // Endereço para usado para acessar o localhost no celular
+    private const val BASE_URL = "http://10.0.2.2:3000/" // IP do emulator Android to access local server
+
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
@@ -15,8 +16,8 @@ object RetrofitClient {
     }
 
 
-    val apiService: ApiService by lazy {
-        RetrofitClient.retrofit.create(ApiService::class.java)
+    val apiService: ItemApiService by lazy {
+        retrofit.create(ItemApiService::class.java)
     }
 
 }
