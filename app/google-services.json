@@ -6,7 +6,16 @@
   },
   "client": [
     {
-      
+      "client_info": {
+        "mobilesdk_app_id": "APP_ID_KEY",
+        "android_client_info": {
+          "package_name": "com.example.meuprimeiroapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "APP_KEY"
         }
       ],
       "services": {
