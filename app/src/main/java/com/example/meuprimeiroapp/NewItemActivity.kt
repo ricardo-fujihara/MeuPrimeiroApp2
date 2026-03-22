@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.android.identity.util.UUID
 import com.example.meuprimeiroapp.service.Result
 import com.example.meuprimeiroapp.databinding.ActivityNewItemBinding
 import com.example.meuprimeiroapp.model.ItemLocation
@@ -30,10 +34,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
@@ -49,6 +55,8 @@ class NewItemActivity : AppCompatActivity(), OnMapReadyCallback {
     private var selectedMarker: Marker? = null
 
     private lateinit var imageUri: Uri
+    private var imageFile: File? = null // Variável para armazenar o arquivo da imagem temporária File
+
 
     private val cameraLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -153,12 +161,12 @@ class NewItemActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
-        val imageFile = File.createTempFile(imageFileName, ".jpg", storageDir)
+        imageFile = File.createTempFile(imageFileName, ".jpg", storageDir)
 
         return FileProvider.getUriForFile(
             this,
             "com.example.meuprimeiroapp.fileprovider",
-            imageFile
+            imageFile!!
         )
     }
 
@@ -204,25 +212,26 @@ class NewItemActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient
 
     }
-
-
     private fun saveItem() {
         // Lógica para salvar o item
         if (!validateForm()) return
-            val name = binding.name.text.toString()
-            val itemPosition = selectedMarker?.position?.let {
-                ItemLocation(
-                    name = name,
-                    latitude = it.latitude,
-                    longitude = it.longitude
-                )
-            }
 
+            uploadImageToFirebase()
+
+
+    }
+
+    private fun saveData() {
+        val name = binding.name.text.toString()
+        val itemPosition = selectedMarker?.position?.let {
+            ItemLocation(
+                name = name,
+                latitude = it.latitude,
+                longitude = it.longitude
+            )
+        }
         CoroutineScope(Dispatchers.IO).launch {
             val id = SecureRandom().nextInt().toString()
-
-
-
             val itemValue = ItemValue(
                 id = id,
                 name = name,
@@ -232,6 +241,7 @@ class NewItemActivity : AppCompatActivity(), OnMapReadyCallback {
                 imageUrl = binding.imageUrl.text.toString(),
                 location = itemPosition
             )
+
             val result = safeApiCall { RetrofitClient.apiService.addItem(itemValue) }
             withContext(Dispatchers.Main) {
                 when (result) {
@@ -239,10 +249,47 @@ class NewItemActivity : AppCompatActivity(), OnMapReadyCallback {
                     is Result.Error -> handleOnError()
                 }
             }
-
         }
     }
 
+    private fun uploadImageToFirebase() {
+        imageFile?.let {
+        // Lógica para fazer upload da imagem para o Firebase Storage
+        val storageRef = FirebaseStorage.getInstance().reference
+        // Criar uma referência para o arquivo de imagem
+        val imageRef = storageRef.child("images/${UUID.randomUUID()}.jpg")
+        // Converter o Bitmap para ByteArrayOutputStream
+        val baos = ByteArrayOutputStream()
+        val imageBitmap = BitmapFactory.decodeFile(it.path)
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+        // Fazer upload da imagem para o Firebase Storage
+
+            onLoadImage(true)
+
+            imageRef.putBytes(data)
+                .addOnFailureListener {
+                    onLoadImage(false)
+                    Toast.makeText(
+                        this,
+                        "Falha ao fazer o Upload para o Firebase",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnSuccessListener {
+                    onLoadImage(false)
+                    imageRef.downloadUrl.addOnSuccessListener { uri ->
+                        binding.imageUrl.setText(uri.toString())
+                        saveData()
+                    }
+                }
+            }
+    }
+    fun onLoadImage(isLoading: Boolean) {
+        binding.loadImageProgress.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.takePictureCta.isEnabled = !isLoading
+        binding.saveCta.isEnabled = !isLoading
+    }
     private fun handleOnError() {
         Toast.makeText(
             this@NewItemActivity,
