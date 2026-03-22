@@ -43,8 +43,8 @@ class ItemDetailActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         if (::item.isInitialized) {
-            //Se o item ja estiver carregado, carregue-o no mapa
-           loadItemInGoogleMap()
+            // Se o item já estiver carregado, carregue-o no mapa
+            loadItemInGoogleMap()
         }
     }
 
@@ -59,7 +59,6 @@ class ItemDetailActivity : AppCompatActivity(), OnMapReadyCallback {
             deleteItem()
         }
         binding.editCTA.setOnClickListener {
-            //Lógica para editar o item
             editItem()
         }
     }
@@ -73,8 +72,8 @@ class ItemDetailActivity : AppCompatActivity(), OnMapReadyCallback {
             withContext(Dispatchers.Main) {
                 when (result) {
                     is Result.Success -> {
-                    item = result.data
-                        handleOnSuccess()
+                        item = result.data
+                        handleSuccess()
                     }
                     is Result.Error -> {
                         Toast.makeText(
@@ -90,22 +89,19 @@ class ItemDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setupGoogleMap() {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync (this)
-
+        mapFragment.getMapAsync(this)
     }
 
-    private fun handleOnSuccess() {
+    private fun handleSuccess() {
         binding.name.text = item.value.fullName
-        binding.age.text =  getString(R.string.item_age, item.value.age)
+        binding.age.text = getString(R.string.item_age, item.value.age)
         binding.profession.setText(item.value.profession)
         binding.image.loadUrl(item.value.imageUrl)
         loadItemInGoogleMap()
     }
 
     private fun loadItemInGoogleMap() {
-        //Verifique se o mapa foi inicializado antes de tentar acessar
         if (!::mMap.isInitialized) return
-
         item.value.location?.let {
             binding.googleMapContent.visibility = View.VISIBLE
             val location = LatLng(it.latitude, it.longitude)
@@ -141,8 +137,8 @@ class ItemDetailActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
+
     private fun editItem() {
-        //Lógica para editar o item
         CoroutineScope(Dispatchers.IO).launch {
             val result = safeApiCall {
                 RetrofitClient.apiService.updateItem(
@@ -150,6 +146,7 @@ class ItemDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                     item.value.copy(profession = binding.profession.text.toString())
                 )
             }
+
             withContext(Dispatchers.Main) {
                 when (result) {
                     is Result.Success -> {
@@ -160,6 +157,7 @@ class ItemDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                         ).show()
                         finish()
                     }
+
                     is Result.Error -> {
                         Toast.makeText(
                             this@ItemDetailActivity,

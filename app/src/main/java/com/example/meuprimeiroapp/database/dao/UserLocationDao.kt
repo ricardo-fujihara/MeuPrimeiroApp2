@@ -17,4 +17,5 @@ interface UserLocationDao {
 
     @Query("SELECT * FROM user_location_table ORDER BY id DESC LIMIT 1")
     suspend fun getLastLocation(): UserLocation?
+
 }

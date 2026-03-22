@@ -10,13 +10,15 @@ object DatabaseBuilder {
     fun getInstance(context: Context? = null): AppDatabase {
         return INSTANCE ?: synchronized(this) {
             if (context == null) {
-                throw IllegalArgumentException("Context cannot be null")
+                throw IllegalStateException("Context cannot be null")
             }
+
             val instance = Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
                 "app_database"
-                ).build()
+            )
+                .build()
             INSTANCE = instance
             instance
         }

@@ -9,6 +9,5 @@ data class UserLocation(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     var latitude: Double = 0.toDouble(),
     var longitude: Double = 0.toDouble(),
-    var createdAd: Date = Date()
-
+    var createdAt: Date = Date(),
 )

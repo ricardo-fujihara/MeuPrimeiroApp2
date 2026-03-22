@@ -4,17 +4,17 @@ import androidx.room.TypeConverter
 import java.util.Date
 
 /**
- * Date Converter para "Ensinar" o data base a trabalhar com objetos do tipo Date
- * O Date nada mais do que um long com a data em milissegundos
+ * Date converer para "Ensinar" o data base a trabalhar com o tipo Date
  */
 class DateConverters {
 
     @TypeConverter
-    fun fromTimestamp(value: Long?): Date? {
+    fun fromTimeStamp(value: Long?): Date? {
         return value?.let { Date(it) }
     }
+
     @TypeConverter
-    fun dateToTimestamp(date: Date?): Long? {
+    fun dateToTimeStamp(date: Date?): Long? {
         return date?.time
     }
 }

@@ -1,14 +1,13 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
 }
 
 android {
     namespace = "com.example.meuprimeiroapp"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.meuprimeiroapp"
@@ -30,19 +29,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
     buildFeatures {
         dataBinding = true
         viewBinding = true
-    }
-}
-
-kapt {
-    arguments {
-        arg("room.schemaLocation", "${projectDir}/schemas")
     }
 }
 
@@ -67,19 +63,18 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.auth)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.storage.ktx)
-    implementation(libs.identity.jvm)
-
+    // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
 
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage.ktx)
 
     testImplementation(libs.junit)
-
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
