@@ -1,0 +1,20 @@
+{
+  "project_info": {
+    "project_number": "71236054662",
+    "project_id": "meuprimeiroapp-52f44",
+    "storage_bucket": "meuprimeiroapp-52f44.firebasestorage.app"
+  },
+  "client": [
+    {
+      
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
